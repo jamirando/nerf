@@ -18,7 +18,7 @@ from load_llff import load_llff_data
 from load_deepvoxels import load_dv_data
 from load_blender import load_blender_data
 
-
+# from tqdm import tqdm
     
 def batchify(fn, chunk):
     if chunk is None:
@@ -372,19 +372,22 @@ def config_parser():
     parser = configargparse.ArgumentParser()
     parser.add_argument('--config', is_config_file=True, help='config file path')
     parser.add_argument("--expname", type=str, help='experiment name')
-    parser.add_argument("--basedir", type=str, default='./logs/', help='where to store ckpts and logs')
-    parser.add_argument("--datadir", type=str, default='./data/llff/fern', help='input data directory')
+    parser.add_argument("--basedir", type=str, default='.\\logs\\', help='where to store ckpts and logs')
+    parser.add_argument("--datadir", type=str, default='.\\data\\llff\\fern', help='input data directory')
     
     # training options
     parser.add_argument("--netdepth", type=int, default=8, help='layers in network')
     parser.add_argument("--netwidth", type=int, default=256, help='channels per layer')
     parser.add_argument("--netdepth_fine", type=int, default=8, help='layers in fine network')
     parser.add_argument("--netwidth_fine", type=int, default=256, help='channels per layer in fine network')
+    # parser.add_argument("--N_rand", type=int, default=32*32*4, help='batch size (number of random rays per gradient step)')
     parser.add_argument("--N_rand", type=int, default=32*32*4, help='batch size (number of random rays per gradient step)')
     parser.add_argument("--lrate", type=float, default=5e-4, help='learning rate')
     parser.add_argument("--lrate_decay", type=int, default=250, help='exponential learning rate decay (in 1000s)')
-    parser.add_argument("--chunk", type=int, default=1024*32, help='number of rays processed in parallel, decrease if running out of memory')
-    parser.add_argument("--netchunk", type=int, default=1024*64, help='number of pts sent through network in parallel, decrease if running out of memory')
+    # parser.add_argument("--chunk", type=int, default=1024*32, help='number of rays processed in parallel, decrease if running out of memory')
+    # parser.add_argument("--netchunk", type=int, default=1024*64, help='number of pts sent through network in parallel, decrease if running out of memory')
+    parser.add_argument("--chunk", type=int, default=1024*16, help='number of rays processed in parallel, decrease if running out of memory')
+    parser.add_argument("--netchunk", type=int, default=1024*32, help='number of pts sent through network in parallel, decrease if running out of memory')
     parser.add_argument("--no_batching", action='store_true', help='only take random rays from 1 image at a time') 
     parser.add_argument("--no_reload", action='store_true', help='do not reload weights from saved ckpt') 
     parser.add_argument("--ft_path", type=str, default=None, help='specific weights npy file to reload for coarse network')
@@ -593,6 +596,7 @@ def train():
     print('TRAIN views are', i_train)
     print('TEST views are', i_test)
     print('VAL views are', i_val)
+    print(basedir)
     
     # Summary writers
     writer = tf.contrib.summary.create_file_writer(os.path.join(basedir, 'summaries', expname))
